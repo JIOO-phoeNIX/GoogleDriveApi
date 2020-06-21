@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@{
+    string message = "";   
+
+    switch (Request.QueryString["status"])
+    {
+        case null:
+            message = "Welcome, select your file and click the 'Upload File' button to upload your file to google drive";
+            break;
+        case "success":
+            message = "File has been uploaded to your google drive successfully, go to your drive to confirm the upload";
+            break;
+        case "failure":
+            message = "An error has occured please try uploading the file again";
+            break;
+        case "nofile":
+            message = "Please select the file to upload";
+            break;
+        default:
+            message = "Welcome, select your file and click the 'Upload File' button to upload your file to google drive";
+            break;
+    }
+}
+
+@using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="col-md-10 offset-1">
+        <div class="well">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="alert-success">
+                        <td colspan="2">
+                            @message
+                        </td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="file" name="file" id="file" />
+                        </td>
+                        <td>
+                            Select the file to upload
+                        </td>
+                    </tr>
+                    <tr class="alert-success">
+                        <td colspan="2">
+                            <input type="submit" id="uploadFile" class="btn btn-success" value="Upload File" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

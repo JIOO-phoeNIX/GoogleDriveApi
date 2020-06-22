@@ -9,10 +9,14 @@ using System.Threading;
 
 namespace GoogleDriveApi.Repository
 {
+    /// <summary>
+    /// This class encapsulates the process required to upload a file to Google Drive. It contains
+    /// the methods needed to authenticate the user and upload the file.
+    /// </summary>
     public class GoogleApiDriveRepository
     {
-        private static readonly string[] scopes = { DriveService.Scope.Drive };
-        private static readonly string applicationName = "Assignment";
+        private static readonly string[] scopes = { DriveService.Scope.Drive }; //define the scopes
+        private static readonly string applicationName = "Assignment";  
 
         /// <summary>
         /// This method is used to get the user's OAuth 2.0 credentials
@@ -22,10 +26,16 @@ namespace GoogleDriveApi.Repository
         {
             UserCredential credential;
 
-            using (var stream = new FileStream(@"C:\client_secret.json", FileMode.Open, FileAccess.Read))
+            //Read the Client Credentials from the client_secret.json file and use it to get the 
+            //OAuth 2.0 credentials and store it in the folder C:\users_credentials
+            using (FileStream stream = new FileStream(@"C:\client_secret.json", FileMode.Open, FileAccess.Read))
             {
-                string folderPath = @"C:\";
-                string credentialPath = Path.Combine(folderPath, "users_credentials.json");
+                //Set the folder path where the OAuth 2.0 credentials is stored
+                string folderPath = @"C:\";                
+                string credentialPath = Path.Combine(folderPath, "users_credentials");
+
+                //Get the OAuth 2.0 credentials after authenticating the user and user gives access
+                //and store it in the folder C:\users_credentials
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.Load(stream).Secrets,
                     scopes,
@@ -38,13 +48,13 @@ namespace GoogleDriveApi.Repository
         }
 
         /// <summary>
-        /// 
+        /// This method creates a Drive API service using the user's OAuth 2.0 credentials
         /// </summary>
-        /// <param name="file"></param>
+        /// <returns>Google Drive API service</returns>
         public static DriveService CreateService()
         {
-            // Create Drive API service.
-            var service = new DriveService(new BaseClientService.Initializer()
+            // Create a Drive API service.
+            DriveService service = new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = GetUserCredential(),
                 ApplicationName = applicationName,
@@ -54,33 +64,39 @@ namespace GoogleDriveApi.Repository
         }
 
         /// <summary>
-        /// ///
+        /// This method trys to upload the file to Google Drive using the Drive API Service       
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name="file">The file to be uploaded</param>
         public static void UploadFile(HttpPostedFileBase file)
         {
             try
             {
                 DriveService service = CreateService();
 
+                //Get the file to be uploaded and save it to the folder ~/GoogleDriveApiFiles/
                 string fileName = Path.GetFileName(file.FileName);
-                string path = Path.Combine(HttpContext.Current.Server.MapPath("~/GoogleDriveApiFiles"),
-                    fileName);
+                string path = Path.Combine(HttpContext.Current.Server.MapPath("~/GoogleDriveApiFiles"), fileName);
                 file.SaveAs(path);
 
+                //Create a Google Drive file type using the file Name and MimeType of the file
+                //to be uploaded
                 var fileData = new Google.Apis.Drive.v3.Data.File
                 {
                     Name = fileName,
                     MimeType = MimeMapping.GetMimeMapping(path)
                 };
 
+                //Create a media upload that is used to upload the file to Google Drive
                 FilesResource.CreateMediaUpload mediaUpload;
 
-                using (var stream = new FileStream(path, FileMode.Open))
+                //Open the file to be uploaded to Google Drive
+                using (FileStream stream = new FileStream(path, FileMode.Open))
                 {
+                    //Create the file
                     mediaUpload = service.Files.Create(fileData, stream, fileData.MimeType);
                     mediaUpload.Fields = "id";
 
+                    //Upload the file to Google Drive
                     mediaUpload.Upload();
                 }
             }

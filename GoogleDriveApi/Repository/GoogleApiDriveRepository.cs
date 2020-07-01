@@ -62,12 +62,12 @@ namespace GoogleDriveApi.Repository
 
             return service;
         }
-
+       
         /// <summary>
         /// This method trys to upload the file to Google Drive using the Drive API Service       
         /// </summary>
         /// <param name="file">The file to be uploaded</param>
-        public static void UploadFile(HttpPostedFileBase file)
+        public static FilesResource.CreateMediaUpload UploadFile(HttpPostedFileBase file)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace GoogleDriveApi.Repository
 
                 //Get the file to be uploaded and save it to the folder ~/GoogleDriveApiFiles/
                 string fileName = Path.GetFileName(file.FileName);
-                string path = Path.Combine(HttpContext.Current.Server.MapPath("~/GoogleDriveApiFiles"), fileName);
+                string path = Path.Combine(@"C:\GoogleDriveApiFiles", fileName);
                 file.SaveAs(path);
 
                 //Create a Google Drive file type using the file Name and MimeType of the file
@@ -99,12 +99,13 @@ namespace GoogleDriveApi.Repository
                     //Upload the file to Google Drive
                     mediaUpload.Upload();
                 }
+
+                return mediaUpload;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-       
         }
     }
 }

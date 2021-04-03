@@ -8,7 +8,7 @@ Initially, I enabled Google Drive API V3 for my application by going to the URL:
 https://console.developers.google.com/, registered my application with the name "Assignment", 
 and I was issued an OAuth 2.0 Client IDs.
 
-I used ASP.NET MCV to implement the Assignment. 
+I used ASP.NET MCV to implement the project. 
 The implementation contains a single Controller (HomeController) which can be found in the folder
 ~/Controllers/ of project GoogleDriveApi. The Controller contains two action methods named Index and 
 UploadFile.
